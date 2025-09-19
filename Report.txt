@@ -1,1 +1,50 @@
+Toxic Comment Classification: A Multi-Label NLP Analysis
+This report details the process of building and evaluating machine learning models to classify Wikipedia comments into six categories of toxicity: toxic, severe_toxic, obscene, threat, insult, and identity_hate. The goal is to create a model that can predict the probability for each toxicity type for any given comment, addressing the challenge of moderating online conversations.
 
+1. Exploratory Data Analysis (EDA)
+The initial dataset contains 159,571 comments. A preliminary analysis revealed no missing values. The core of the EDA focused on understanding the distribution of the toxicity labels.
+
+Label Imbalance: The dataset is highly imbalanced. A vast majority of comments (143,346 or ~90%) are non-toxic.
+
+Toxicity Distribution: Among the toxic comments, the labels themselves are not evenly distributed. The 'toxic' label is the most common, while 'threat' and 'severe_toxic' are extremely rare.
+
+Multi-Label Comments: Many comments carry more than one toxicity label. The analysis showed that most comments have either zero or one label, with a decreasing number of comments having multiple labels.
+
+This class imbalance is a critical challenge. High overall accuracy can be misleading if the model simply learns to predict "non-toxic" for most comments, failing to identify the rare but important toxic categories. Therefore, metrics like ROC-AUC are more suitable for evaluation.
+
+2. Data Preprocessing
+Before modeling, the raw text data from comment_text was cleaned and standardized through a multi-step preprocessing pipeline to make it suitable for machine learning.
+
+Text Cleaning: The text was converted to lowercase. Regular expressions were used to expand contractions (e.g., "i'm" became "i am"), remove punctuation, and eliminate extra whitespace.
+
+Stopword Removal: Common English stopwords (e.g., 'the', 'a', 'is') were removed, as they typically do not carry significant meaning for classification.
+
+Stemming: The Snowball Stemmer was applied to reduce words to their root form (e.g., "trying" becomes "tri"). This helps consolidate the vocabulary and allows the model to recognize words with similar meanings as the same feature.
+
+After preprocessing, a comment like "Hey man, I'm really not trying to edit war." was transformed into "hey man realli tri edit war".
+
+3. Modeling and Evaluation
+This is a multi-label classification problem. The OneVsRestClassifier strategy was used, which trains a separate binary classifier for each of the six labels.
+
+Feature Extraction: TF-IDF
+The cleaned text was converted into numerical vectors using TfidfVectorizer. TF-IDF (Term Frequency-Inverse Document Frequency) creates features that reflect the importance of a word in a comment relative to its frequency across the entire dataset.
+
+Algorithms and Pipelines
+Two models were trained and evaluated using scikit-learn Pipelines:
+
+Multinomial Naive Bayes (NB): A probabilistic classifier that is fast and works well for text data.
+
+Logistic Regression (LR): A robust and highly interpretable linear model that often serves as a strong baseline.
+
+The data was split into an 80% training set and a 20% testing set.
+
+Results
+The Logistic Regression model significantly outperformed the Naive Bayes model across all relevant metrics.
+
+Metric	Multinomial Naive Bayes	Logistic Regression
+ROC AUC Score	0.8604	0.9794
+Accuracy	0.8998	0.9187
+Micro Avg F1-Score	0.22	0.68
+
+Export to Sheets
+While Naive Bayes achieved high accuracy by correctly identifying non-toxic comments, its recall for toxic classes was extremely low, making it ineffective. The Logistic Regression model demonstrated a much better balance between precision and recall,making is superior choice
